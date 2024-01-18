@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -14,30 +15,26 @@ var (
 )
 
 func main() {
+	lambda.Start(handler)
+}
+
+func handler(ctx context.Context, v interface{}) error {
 	// https://github.com/aws/aws-lambda-go/tree/main/events
-	switch os.Getenv("EVENT") {
-	case "Kinesis":
-		lambda.Start(Kinesis)
-	case "S3":
-		lambda.Start(S3)
+	switch ev := v.(type) {
+	case events.KinesisEvent:
+		for _, record := range ev.Records {
+			logger.Print(record.Kinesis.Data)
+		}
+	case events.S3Event:
+		for _, record := range ev.Records {
+			key, err := url.QueryUnescape(record.S3.Object.Key)
+			if err != nil {
+				return err
+			}
+			logger.Printf("bucket: %s, object: %s", record.S3.Bucket.Name, key)
+		}
 	default:
-		logger.Fatal("EVENT environment variable required")
-	}
-}
-
-// Kinesis consumes the records of the stream
-func Kinesis(ctx context.Context, ev events.KinesisEvent) error {
-	for _, record := range ev.Records {
-		logger.Print(record.Kinesis.Data)
-	}
-
-	return nil
-}
-
-// S3 handles the S3 events
-func S3(ctx context.Context, ev events.S3Event) error {
-	for _, record := range ev.Records {
-		logger.Printf("bucket: %s, object: %s", record.S3.Bucket.Name, record.S3.Object.Key)
+		logger.Print("not implemented yet")
 	}
 
 	return nil
