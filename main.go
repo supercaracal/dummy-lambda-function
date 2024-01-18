@@ -30,6 +30,7 @@ func handler(ctx context.Context, v interface{}) error {
 			key, err := url.QueryUnescape(record.S3.Object.Key)
 			if err != nil {
 				logger.Print(err)
+				continue
 			}
 			logger.Printf("bucket: %s, object: %s", record.S3.Bucket.Name, key)
 		}
