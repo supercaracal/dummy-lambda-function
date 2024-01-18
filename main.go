@@ -29,7 +29,7 @@ func handler(ctx context.Context, v interface{}) error {
 		for _, record := range ev.Records {
 			key, err := url.QueryUnescape(record.S3.Object.Key)
 			if err != nil {
-				return err
+				logger.Print(err)
 			}
 			logger.Printf("bucket: %s, object: %s", record.S3.Bucket.Name, key)
 		}
