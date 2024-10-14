@@ -1,0 +1,16 @@
+---
+# https://ko.build/configuration/
+defaultPlatforms:
+  - linux/amd64
+  #- linux/arm64 # AWS Lambda has no support for multi-arch manifest.
+defaultEnv:
+  - CGO_ENABLED=0
+defaultFlags:
+  - -trimpath
+  - -tags
+  - timetzdata
+  - -tags
+  - lambda.norpc
+defaultLdflags:
+  - -s
+  - -w
